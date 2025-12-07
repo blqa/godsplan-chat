@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -14,49 +15,67 @@
 
     <style>
         :root {
+            /* VALORES BASE (DEFAULT) */
             --bg: #111827; --card: #1f2937; --text: #f3f4f6; --text-mute: #9ca3af;
             --brand: #ef4444; --border: #374151; --input-bg: #111827;
             --own-msg: #ef4444; --other-msg: #374151;
-            --header-h: 60px;
-            --pkg-color: #f59e0b; /* Color Ambar para Paquetes */
+            --pkg-color: #f59e0b;
         }
 
-        body.light {
+        /* TEMA LIGHT */
+        [data-theme="light"] {
             --bg: #f3f4f6; --card: #ffffff; --text: #1f2937; --text-mute: #6b7280;
             --brand: #dc2626; --border: #e5e7eb; --input-bg: #ffffff;
-            --own-msg: #dc2626; --other-msg: #e5e7eb;
+            --own-msg: #dc2626; --other-msg: #f3f4f6;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; outline: none; }
+        /* TEMA RED CORE */
+        [data-theme="red"] {
+            --bg: #000000; --card: #111111; --text: #e5e5e5; --text-mute: #737373;
+            --brand: #b91c1c; --border: #262626; --input-bg: #0a0a0a;
+            --own-msg: #7f1d1d; --other-msg: #262626;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; outline: none; transition: background-color 0.3s, border-color 0.3s; }
         body { background-color: var(--bg); color: var(--text); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
 
-        /* HEADER */
+        /* --- GLOBAL NAV --- */
+        #global-nav {
+            height: 40px; background: #000; display: flex; align-items: center; 
+            justify-content: space-between; padding: 0 15px; flex-shrink: 0;
+            border-bottom: 1px solid #333; position: sticky; top: 0; z-index: 100;
+        }
+        .g-logo { color: #fff; font-weight: 900; text-decoration: none; font-size: 0.8rem; letter-spacing: 1px; display: flex; align-items: center; gap: 5px; }
+        .g-links { display: flex; gap: 15px; }
+        .g-link { color: #666; text-decoration: none; font-size: 0.75rem; font-weight: 700; transition: color 0.2s; }
+        .g-link:hover, .g-link.active { color: #fff; }
+
+        /* HEADER APP */
         header { 
-            height: var(--header-h); background: var(--card); border-bottom: 1px solid var(--border); 
-            display: flex; justify-content: space-between; align-items: center; padding: 0 15px; flex-shrink: 0; z-index: 10;
+            height: 60px; background: var(--card); border-bottom: 1px solid var(--border); 
+            display: flex; justify-content: space-between; align-items: center; padding: 0 15px; flex-shrink: 0; z-index: 50;
         }
         .header-left { display: flex; align-items: center; gap: 10px; }
-        .app-logo { font-size: 1.1rem; font-weight: 800; color: var(--brand); display: flex; gap: 5px; align-items: center; text-transform: uppercase; }
-        .header-actions button { background: none; border: none; color: var(--text-mute); font-size: 1.2rem; cursor: pointer; padding: 8px; }
+        .app-logo { font-size: 1.1rem; font-weight: 800; color: var(--brand); display: flex; gap: 5px; align-items: center; text-transform: uppercase; letter-spacing: 0.5px; }
+        .header-actions button { background: none; border: 1px solid var(--border); border-radius: 8px; color: var(--text-mute); font-size: 1.1rem; cursor: pointer; padding: 6px; margin-left: 5px; transition: all 0.2s; }
+        .header-actions button:hover { background: var(--bg); color: var(--text); }
 
         /* TABS (3 Canales) */
         .sections-bar {
             background: var(--bg); border-bottom: 1px solid var(--border);
             display: grid; grid-template-columns: 1fr 1fr 1fr; 
-            padding: 0; flex-shrink: 0;
+            padding: 5px; gap: 5px; flex-shrink: 0;
         }
         .section-tab {
-            background: transparent; border: none; border-bottom: 3px solid transparent;
-            color: var(--text-mute); padding: 12px 5px; font-size: 0.8rem; font-weight: 700;
+            background: transparent; border: none; border-radius: 8px;
+            color: var(--text-mute); padding: 10px; font-size: 0.75rem; font-weight: 800;
             cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px;
-            transition: all 0.2s; text-transform: uppercase;
+            transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.5px;
         }
-        .section-tab i { font-size: 1.1rem; }
-        .section-tab:hover { background: rgba(255,255,255,0.02); }
-        .section-tab.active { color: var(--brand); border-bottom-color: var(--brand); background: var(--card); }
-        
-        /* Pestaña especial para Paquetes */
-        .section-tab[data-tab="paquetes"].active { color: var(--pkg-color); border-bottom-color: var(--pkg-color); }
+        .section-tab i { font-size: 1.2rem; }
+        .section-tab:hover { background: var(--card); }
+        .section-tab.active { background: var(--card); color: var(--brand); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .section-tab[data-tab="paquetes"].active { color: var(--pkg-color); }
 
         /* CHAT AREA */
         #messages {
@@ -69,31 +88,29 @@
         .message-row.mine { align-self: flex-end; align-items: flex-end; }
         .message-row.theirs { align-self: flex-start; align-items: flex-start; }
         
-        .sender-name { font-size: 0.7rem; color: var(--text-mute); margin-bottom: 4px; margin-left: 5px; font-weight: 600; }
+        .sender-name { font-size: 0.7rem; color: var(--text-mute); margin-bottom: 4px; margin-left: 5px; font-weight: 700; }
         .message-row.mine .sender-name { display: none; } 
 
         .bubble {
             padding: 10px 15px; border-radius: 18px; font-size: 0.95rem; line-height: 1.45;
-            position: relative; word-wrap: break-word; box-shadow: 0 1px 2px rgba(0,0,0,0.15);
+            position: relative; word-wrap: break-word; box-shadow: 0 1px 2px rgba(0,0,0,0.1);
         }
         .message-row.theirs .bubble { background: var(--other-msg); color: var(--text); border-top-left-radius: 4px; }
         .message-row.mine .bubble { background: var(--own-msg); color: white; border-top-right-radius: 4px; }
         
         .msg-meta { font-size: 0.65rem; margin-top: 4px; opacity: 0.7; text-align: right; }
 
-        /* ESTILO ESPECIAL: SOLICITUD DE PAQUETE */
+        /* ESTILO ESPECIAL: PAQUETES */
         .bubble.package-request {
             background: rgba(245, 158, 11, 0.15) !important; 
-            border: 1px solid var(--pkg-color);
-            color: var(--text);
-            border-radius: 12px !important;
-            width: 100%;
+            border: 1px solid var(--pkg-color); color: var(--text);
+            border-radius: 12px !important; width: 100%;
         }
         .pkg-header { display: flex; align-items: center; gap: 5px; color: var(--pkg-color); font-weight: 800; font-size: 0.8rem; margin-bottom: 5px; text-transform: uppercase; }
         .pkg-body { font-size: 1rem; font-weight: 600; margin-bottom: 5px; }
         .pkg-date { font-size: 0.8rem; color: var(--text-mute); }
 
-        /* INPUT AREA */
+        /* FOOTER */
         footer {
             background: var(--card); padding: 10px 15px; border-top: 1px solid var(--border);
             display: flex; align-items: center; gap: 10px; flex-shrink: 0;
@@ -102,8 +119,7 @@
         .chat-input-wrapper { flex-grow: 1; position: relative; display: flex; align-items: center; }
         #messageInput {
             width: 100%; background: var(--input-bg); border: 1px solid var(--border);
-            color: var(--text); padding: 12px 18px; border-radius: 24px;
-            font-size: 1rem; 
+            color: var(--text); padding: 12px 18px; border-radius: 24px; font-size: 1rem; 
         }
         #messageInput:focus { border-color: var(--brand); }
         
@@ -112,33 +128,49 @@
             display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform 0.1s;
         }
         #sendButton { background: var(--brand); color: white; }
-        #pkgButton { background: var(--pkg-color); color: white; display: none; } /* Solo visible en tab paquetes */
+        #pkgButton { background: var(--pkg-color); color: white; display: none; }
         
         #sendButton:active, #pkgButton:active { transform: scale(0.95); }
-        #sendButton:disabled { background: var(--text-mute); opacity: 0.3; }
+        #sendButton:disabled { background: var(--border); opacity: 0.5; cursor: not-allowed; }
 
-        /* MODALES */
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(5px); z-index: 2000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+        /* MODALS */
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 2000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
         .modal.active { opacity: 1; pointer-events: auto; }
-        .modal-card { background: var(--card); border: 1px solid var(--border); padding: 25px; border-radius: 16px; width: 90%; max-width: 380px; text-align: center; }
+        .modal-card { background: var(--card); border: 1px solid var(--border); padding: 25px; border-radius: 16px; width: 90%; max-width: 380px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+        
         .full-input { width: 100%; padding: 14px; margin-bottom: 12px; background: var(--input-bg); border: 1px solid var(--border); color: var(--text); border-radius: 8px; font-size: 1rem; }
-        .full-btn { width: 100%; padding: 14px; background: var(--brand); color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; margin-bottom: 10px; font-size: 1rem; }
-        .sec-btn { background: transparent; border: 1px solid var(--border); color: var(--text-mute); font-size: 0.9rem; }
+        .full-btn { width: 100%; padding: 14px; background: var(--brand); color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; margin-bottom: 10px; font-size: 1rem; text-transform: uppercase; }
+        .sec-btn { background: transparent; border: 1px solid var(--border); color: var(--text-mute); font-size: 0.9rem; width: 100%; padding: 12px; border-radius: 8px; cursor: pointer; }
         .google-btn { background: #4285F4; }
+
+        /* THEME MENU */
+        .theme-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .theme-btn { padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); cursor: pointer; font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .theme-btn.active { border-color: var(--brand); color: var(--brand); background: var(--card); box-shadow: 0 0 0 1px var(--brand); }
     </style>
 </head>
 <body>
+
+    <!-- GLOBAL NAV -->
+    <nav id="global-nav">
+        <a href="https://godsplan.site" class="g-logo"><i class="ph-bold ph-circles-three-plus"></i> NEXUS</a>
+        <div class="g-links">
+            <a href="https://adherencia.godsplan.site" class="g-link">ADHERENCIA</a>
+            <a href="#" class="g-link active">CHAT</a>
+            <a href="https://godsplan.site/proyectos" class="g-link">PROYECTOS</a>
+        </div>
+    </nav>
 
     <header>
         <div class="header-left">
             <div class="app-logo"><i class="ph-fill ph-buildings"></i> Corpodatos</div>
         </div>
         <div class="header-actions">
+            <button onclick="app.openThemeModal()"><i class="ph-bold ph-paint-brush"></i></button>
             <button onclick="app.logout()" title="Cerrar"><i class="ph-bold ph-sign-out"></i></button>
         </div>
     </header>
 
-    <!-- SECCIONES -->
     <div class="sections-bar">
         <button class="section-tab active" onclick="app.switchChannel('blints')">
             <i class="ph-bold ph-lightning"></i> Blints
@@ -157,18 +189,15 @@
         <div class="chat-input-wrapper">
             <input type="text" id="messageInput" placeholder="Escribe un mensaje..." autocomplete="off">
         </div>
-        <!-- Botón Normal -->
         <button id="sendButton" disabled><i class="ph-fill ph-paper-plane-right"></i></button>
-        <!-- Botón Especial Paquetes -->
         <button id="pkgButton" onclick="app.openPkgModal()"><i class="ph-bold ph-hand-waving"></i></button>
     </footer>
 
-    <!-- MODAL AUTH -->
+    <!-- MODALES -->
     <div class="modal active" id="authModal">
         <div class="modal-card">
             <h2 style="color:var(--brand); margin-bottom:10px;">Acceso Corpodatos</h2>
             <input type="password" id="companyPin" class="full-input" placeholder="🔒 PIN Empresa">
-            
             <div id="loginForm">
                 <input type="number" id="loginId" class="full-input" placeholder="ID de Empleado">
                 <input type="password" id="loginPass" class="full-input" placeholder="Contraseña">
@@ -176,7 +205,6 @@
                 <button class="full-btn google-btn" onclick="app.loginGoogle()">Google</button>
                 <button class="sec-btn" onclick="app.toggleAuthMode()">Crear Cuenta</button>
             </div>
-
             <div id="registerForm" style="display:none;">
                 <input type="text" id="regName" class="full-input" placeholder="Nombre">
                 <input type="number" id="regId" class="full-input" placeholder="ID">
@@ -187,17 +215,27 @@
         </div>
     </div>
 
-    <!-- MODAL SOLICITUD PAQUETES -->
     <div class="modal" id="pkgModal">
         <div class="modal-card">
             <h3 style="color:var(--pkg-color); margin-bottom:10px;">Solicitar Apoyo</h3>
-            <p style="color:var(--text-mute); font-size:0.9rem; margin-bottom:15px;">¿Qué día te ausentarás para que bajen tus paquetes?</p>
             <label class="form-label" style="display:block; text-align:left; color:var(--text-mute); font-size:0.8rem; margin-bottom:5px;">Fecha de Ausencia</label>
             <input type="date" id="pkgDate" class="full-input">
-            <label class="form-label" style="display:block; text-align:left; color:var(--text-mute); font-size:0.8rem; margin-bottom:5px;">Motivo (Opcional)</label>
-            <input type="text" id="pkgReason" class="full-input" placeholder="Ej. Corte, Baja, Descanso">
+            <label class="form-label" style="display:block; text-align:left; color:var(--text-mute); font-size:0.8rem; margin-bottom:5px;">Motivo</label>
+            <input type="text" id="pkgReason" class="full-input" placeholder="Ej. Corte, Baja">
             <button class="full-btn" style="background:var(--pkg-color);" onclick="app.sendPkgRequest()">Enviar Solicitud</button>
             <button class="sec-btn" onclick="document.getElementById('pkgModal').classList.remove('active')">Cancelar</button>
+        </div>
+    </div>
+
+    <div class="modal" id="themeModal">
+        <div class="modal-card">
+            <h3 style="margin-bottom:15px; color:var(--text);">Personalizar</h3>
+            <div class="theme-grid">
+                <button class="theme-btn" onclick="app.setTheme('light')"><i class="ph-bold ph-sun"></i> Claro</button>
+                <button class="theme-btn" onclick="app.setTheme('dark')"><i class="ph-bold ph-moon"></i> Oscuro</button>
+                <button class="theme-btn" onclick="app.setTheme('red')"><i class="ph-bold ph-fire"></i> Red Core</button>
+            </div>
+            <button class="sec-btn" onclick="document.getElementById('themeModal').classList.remove('active')">Cerrar</button>
         </div>
     </div>
 
@@ -212,6 +250,10 @@
             user: null, channel: 'blints', unsub: null,
             
             init() {
+                // Load Theme
+                const savedTheme = localStorage.getItem('gp_theme') || 'dark';
+                this.setTheme(savedTheme);
+
                 auth.onAuthStateChanged(u => {
                     if(u && !u.isAnonymous) { this.user=u; if(sessionStorage.getItem('pin_ok')) this.start(); }
                 });
@@ -220,9 +262,15 @@
                 input.addEventListener('input', e => document.getElementById('sendButton').disabled = !e.target.value.trim());
                 input.addEventListener('keydown', e => { if(e.key==='Enter') this.send(); });
                 document.getElementById('sendButton').addEventListener('click', () => this.send());
-                
-                // Fecha de hoy por defecto en modal paquetes
                 document.getElementById('pkgDate').valueAsDate = new Date();
+            },
+
+            // THEME
+            openThemeModal() { document.getElementById('themeModal').classList.add('active'); },
+            setTheme(t) {
+                document.documentElement.setAttribute('data-theme', t);
+                localStorage.setItem('gp_theme', t);
+                document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
             },
 
             // AUTH
@@ -239,13 +287,11 @@
             switchChannel(c) {
                 this.channel = c;
                 document.querySelectorAll('.section-tab').forEach(b => b.classList.remove('active'));
-                // Buscar el botón correcto por onclick o data attribute (simplificado aquí por orden visual, mejor usar evento)
                 const buttons = document.querySelectorAll('.section-tab');
                 if(c==='blints') buttons[0].classList.add('active');
                 if(c==='chat') buttons[1].classList.add('active');
                 if(c==='paquetes') buttons[2].classList.add('active');
 
-                // UI Toggle
                 const isPkg = c === 'paquetes';
                 document.getElementById('messageInput').style.display = isPkg ? 'none' : 'block';
                 document.getElementById('sendButton').style.display = isPkg ? 'none' : 'flex';
@@ -274,7 +320,6 @@
                             const name = m.name.includes('@') ? "ID "+m.uid.slice(0,4) : m.name;
 
                             if (m.type === 'package_request') {
-                                // RENDERIZAR SOLICITUD DE PAQUETE
                                 box.innerHTML += `
                                 <div class="message-row ${mine?'mine':'theirs'}" style="width:100%;">
                                     <div class="sender-name">${name}</div>
@@ -287,7 +332,6 @@
                                     </div>
                                 </div>`;
                             } else {
-                                // MENSAJE NORMAL
                                 box.innerHTML += `
                                 <div class="message-row ${mine?'mine':'theirs'}">
                                     <div class="sender-name">${name}</div>
@@ -310,40 +354,27 @@
                 document.getElementById('messageInput').focus();
             },
 
-            // FUNCIONES DE PAQUETES
             openPkgModal() { document.getElementById('pkgModal').classList.add('active'); },
             
             sendPkgRequest() {
                 const dateVal = document.getElementById('pkgDate').value;
                 const reason = document.getElementById('pkgReason').value.trim();
-                
                 if(!dateVal) return alert("Selecciona una fecha");
-                
-                // Formatear fecha bonita
-                const dateObj = new Date(dateVal + 'T00:00:00'); // Fix zona horaria local
+                const dateObj = new Date(dateVal + 'T00:00:00');
                 const dateStr = dateObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
-
                 db.collection(COLLECTION).add({
-                    type: 'package_request',
-                    targetDate: dateStr,
-                    reason: reason,
+                    type: 'package_request', targetDate: dateStr, reason: reason,
                     at: firebase.firestore.FieldValue.serverTimestamp(),
-                    uid: this.user.uid,
-                    name: this.user.displayName || "Anon",
-                    channel: 'paquetes'
+                    uid: this.user.uid, name: this.user.displayName || "Anon", channel: 'paquetes'
                 });
-                
                 document.getElementById('pkgModal').classList.remove('active');
             },
 
             postMessage(content, type) {
                 db.collection(COLLECTION).add({
-                    text: content,
-                    type: type || 'text',
+                    text: content, type: type || 'text',
                     at: firebase.firestore.FieldValue.serverTimestamp(),
-                    uid: this.user.uid,
-                    name: this.user.displayName || "Anon",
-                    channel: this.channel
+                    uid: this.user.uid, name: this.user.displayName || "Anon", channel: this.channel
                 });
             }
         };
