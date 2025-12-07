@@ -153,7 +153,7 @@
 
     <!-- GLOBAL NAV -->
     <nav id="global-nav">
-        <a href="https://godsplan.site" class="g-logo"><i class="ph-bold ph-circles-three-plus"></i> God's Plan</a>
+        <a href="https://godsplan.site" class="g-logo"><i class="ph-bold ph-circles-three-plus"></i> NEXUS</a>
         <div class="g-links">
             <a href="https://adherencia.godsplan.site" class="g-link">ADHERENCIA</a>
             <a href="#" class="g-link active">CHAT</a>
@@ -239,15 +239,41 @@
         </div>
     </div>
 
+    <!-- MODAL DE MENSAJES (Sustituye alert nativo) -->
+    <div class="modal" id="msgModal">
+        <div class="modal-card">
+            <i id="msgIcon" style="font-size:2.5rem; margin-bottom:10px;" class="ph-fill ph-warning-circle text-alert"></i>
+            <p id="msgText" style="font-weight:700; margin-bottom:20px; color:var(--text);"></p>
+            <button class="full-btn" onclick="app.closeMessageModal()">ENTENDIDO</button>
+        </div>
+    </div>
+
     <script>
         const PIN = "corpodatos"; 
-        const COLLECTION = "chat_corpo"; 
+        const COLLECTION_NAME = "chat_corpo"; 
         
         const firebaseConfig = { apiKey: "AIzaSyCrHBz94UtgiaYntHCYhC5jNa6auUI63vQ", authDomain: "god-s-plan-d737b.firebaseapp.com", projectId: "god-s-plan-d737b", storageBucket: "god-s-plan-d737b.firebasestorage.app", messagingSenderId: "458198314028", appId: "1:458198314028:web:d62b24cee2d19ee5b47589" };
-        try { firebase.initializeApp(firebaseConfig); var auth=firebase.auth(), db=firebase.firestore(); } catch(e){}
+        
+        let auth, db, unsubscribe = null;
+
+        // Custom Error Handler
+        function showGlobalError(m){ 
+            const x=document.getElementById('msgModal'); 
+            if(x){ 
+                document.getElementById('msgText').textContent=m; 
+                document.getElementById('msgIcon').style.color='var(--brand)'; 
+                x.classList.add('active'); 
+            } else alert(m); 
+        }
+
+        try { 
+            firebase.initializeApp(firebaseConfig); 
+            auth = firebase.auth(); 
+            db = firebase.firestore(); 
+        } catch(e) { console.error(e); setTimeout(()=>showGlobalError("Error Firebase: "+e.message),1000); }
 
         const app = {
-            user: null, channel: 'blints', unsub: null,
+            user: null, currentChannel: 'blints',
             
             init() {
                 // Load Theme
@@ -255,14 +281,30 @@
                 this.setTheme(savedTheme);
 
                 auth.onAuthStateChanged(u => {
-                    if(u && !u.isAnonymous) { this.user=u; if(sessionStorage.getItem('pin_ok')) this.start(); }
+                    if(u && !u.isAnonymous) { 
+                        this.user=u; 
+                        if(sessionStorage.getItem('pin_ok')) this.startChat(); 
+                    }
                 });
 
                 const input = document.getElementById('messageInput');
                 input.addEventListener('input', e => document.getElementById('sendButton').disabled = !e.target.value.trim());
-                input.addEventListener('keydown', e => { if(e.key==='Enter') this.send(); });
-                document.getElementById('sendButton').addEventListener('click', () => this.send());
+                input.addEventListener('keydown', e => { if(e.key==='Enter') this.sendMessage(); });
+                document.getElementById('sendButton').addEventListener('click', () => this.sendMessage());
                 document.getElementById('pkgDate').valueAsDate = new Date();
+            },
+
+            // --- UTILS UI ---
+            showMessage(m) {
+                const modal = document.getElementById('msgModal');
+                const text = document.getElementById('msgText');
+                const icon = document.getElementById('msgIcon');
+                text.textContent = m;
+                icon.style.color = 'var(--brand)'; // Usa color de marca para errores
+                modal.classList.add('active');
+            },
+            closeMessageModal() {
+                document.getElementById('msgModal').classList.remove('active');
             },
 
             // THEME
@@ -274,19 +316,49 @@
             },
 
             // AUTH
-            checkPin() { if(document.getElementById('companyPin').value.toLowerCase() !== PIN) { alert("PIN Incorrecto"); return false; } sessionStorage.setItem('pin_ok','true'); return true; },
-            async login() { if(!this.checkPin()) return; try{ await auth.signInWithEmailAndPassword(document.getElementById('loginId').value+"@godsplan.local", document.getElementById('loginPass').value); }catch(e){alert(e.message);} },
-            async loginGoogle() { if(!this.checkPin()) return; try{ await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); }catch(e){alert(e.message);} },
-            async register() { if(!this.checkPin()) return; try{ const r=await auth.createUserWithEmailAndPassword(document.getElementById('regId').value+"@godsplan.local", document.getElementById('regPass').value); await r.user.updateProfile({displayName:document.getElementById('regName').value}); }catch(e){alert(e.message);} },
-            toggleAuthMode() { const l=document.getElementById('loginForm'), r=document.getElementById('registerForm'); l.style.display=l.style.display==='none'?'block':'none'; r.style.display=r.style.display==='none'?'block':'none'; },
+            checkPin() { 
+                if(document.getElementById('companyPin').value.toLowerCase() !== PIN) { 
+                    this.showMessage("🚫 PIN Incorrecto."); 
+                    return false; 
+                } 
+                sessionStorage.setItem('pin_ok','true'); 
+                return true; 
+            },
+            async login() { 
+                if(!this.checkPin()) return; 
+                const id = document.getElementById('loginId').value;
+                const pass = document.getElementById('loginPass').value;
+                try{ 
+                    await auth.signInWithEmailAndPassword(id+"@godsplan.local", pass); 
+                } catch(e) { this.showMessage("Error: " + e.message); } 
+            },
+            async loginGoogle() { 
+                if(!this.checkPin()) return; 
+                try{ 
+                    await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); 
+                } catch(e) { this.showMessage("Error: " + e.message); } 
+            },
+            async register() { 
+                if(!this.checkPin()) return; 
+                try{ 
+                    const r = await auth.createUserWithEmailAndPassword(document.getElementById('regId').value+"@godsplan.local", document.getElementById('regPass').value); 
+                    await r.user.updateProfile({displayName:document.getElementById('regName').value}); 
+                } catch(e) { this.showMessage(e.message); } 
+            },
+            toggleAuthMode() { 
+                const l=document.getElementById('loginForm'), r=document.getElementById('registerForm'); 
+                l.style.display=l.style.display==='none'?'block':'none'; 
+                r.style.display=r.style.display==='none'?'block':'none'; 
+            },
             logout() { auth.signOut(); sessionStorage.removeItem('pin_ok'); location.reload(); },
 
-            start() { document.getElementById('authModal').classList.remove('active'); this.load(); },
+            startChat() { document.getElementById('authModal').classList.remove('active'); this.loadMessages(); },
 
             // CHAT LOGIC
             switchChannel(c) {
-                this.channel = c;
+                this.currentChannel = c;
                 document.querySelectorAll('.section-tab').forEach(b => b.classList.remove('active'));
+                
                 const buttons = document.querySelectorAll('.section-tab');
                 if(c==='blints') buttons[0].classList.add('active');
                 if(c==='chat') buttons[1].classList.add('active');
@@ -297,16 +369,16 @@
                 document.getElementById('sendButton').style.display = isPkg ? 'none' : 'flex';
                 document.getElementById('pkgButton').style.display = isPkg ? 'flex' : 'none';
                 
-                this.load();
+                this.loadMessages();
             },
 
-            load() {
+            loadMessages() {
                 if(this.unsub) this.unsub();
                 const box = document.getElementById('messages');
-                box.innerHTML = '<div style="text-align:center; padding:20px; color:#666">Cargando...</div>';
+                box.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-mute)">Cargando...</div>';
                 
-                this.unsub = db.collection(COLLECTION)
-                    .where('channel', '==', this.channel)
+                this.unsub = db.collection(COLLECTION_NAME)
+                    .where('channel', '==', this.currentChannel)
                     .orderBy('at', 'asc')
                     .limit(50)
                     .onSnapshot(s => {
@@ -346,12 +418,13 @@
                     });
             },
 
-            send() {
-                const txt = document.getElementById('messageInput').value.trim();
+            sendMessage() {
+                const input = document.getElementById('messageInput');
+                const txt = input.value.trim();
                 if(!txt) return;
                 this.postMessage(txt, 'text');
-                document.getElementById('messageInput').value = '';
-                document.getElementById('messageInput').focus();
+                input.value = '';
+                input.focus();
             },
 
             openPkgModal() { document.getElementById('pkgModal').classList.add('active'); },
@@ -359,10 +432,10 @@
             sendPkgRequest() {
                 const dateVal = document.getElementById('pkgDate').value;
                 const reason = document.getElementById('pkgReason').value.trim();
-                if(!dateVal) return alert("Selecciona una fecha");
+                if(!dateVal) return this.showMessage("Selecciona una fecha");
                 const dateObj = new Date(dateVal + 'T00:00:00');
                 const dateStr = dateObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
-                db.collection(COLLECTION).add({
+                db.collection(COLLECTION_NAME).add({
                     type: 'package_request', targetDate: dateStr, reason: reason,
                     at: firebase.firestore.FieldValue.serverTimestamp(),
                     uid: this.user.uid, name: this.user.displayName || "Anon", channel: 'paquetes'
@@ -371,10 +444,10 @@
             },
 
             postMessage(content, type) {
-                db.collection(COLLECTION).add({
+                db.collection(COLLECTION_NAME).add({
                     text: content, type: type || 'text',
                     at: firebase.firestore.FieldValue.serverTimestamp(),
-                    uid: this.user.uid, name: this.user.displayName || "Anon", channel: this.channel
+                    uid: this.user.uid, name: this.user.displayName || "Anon", channel: this.currentChannel
                 });
             }
         };
@@ -382,4 +455,3 @@
     </script>
 </body>
 </html>
-
