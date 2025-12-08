@@ -5,7 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>God's Plan | Chat</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    
+    <!-- LIBRERIAS & FUENTES -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;500;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
     <!-- FIREBASE COMPAT -->
@@ -13,12 +16,26 @@
     <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
 
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['"Plus Jakarta Sans"', 'sans-serif'] },
+                    colors: {
+                        dark: { 900: '#050505', 800: '#0a0a0a', 700: '#121212', card: '#18181b' },
+                        brand: { 500: '#ef4444', 600: '#dc2626' }
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
         :root {
-            /* VALORES BASE (DEFAULT) */
-            --bg: #111827; --card: #1f2937; --text: #f3f4f6; --text-mute: #9ca3af;
-            --brand: #ef4444; --border: #374151; --input-bg: #111827;
-            --own-msg: #ef4444; --other-msg: #374151;
+            /* VALORES BASE (DEFAULT - DARK/GODS PLAN) */
+            --bg: #050505; --card: #121212; --text: #e5e5e5; --text-mute: #737373;
+            --brand: #ef4444; --border: #27272a; --input-bg: #18181b;
+            --own-msg: #ef4444; --other-msg: #27272a;
             --pkg-color: #f59e0b;
         }
 
@@ -26,144 +43,145 @@
         [data-theme="light"] {
             --bg: #f3f4f6; --card: #ffffff; --text: #1f2937; --text-mute: #6b7280;
             --brand: #dc2626; --border: #e5e7eb; --input-bg: #ffffff;
-            --own-msg: #dc2626; --other-msg: #f3f4f6;
+            --own-msg: #dc2626; --other-msg: #e5e7eb;
         }
 
         /* TEMA RED CORE */
         [data-theme="red"] {
             --bg: #000000; --card: #111111; --text: #e5e5e5; --text-mute: #737373;
-            --brand: #b91c1c; --border: #262626; --input-bg: #0a0a0a;
-            --own-msg: #7f1d1d; --other-msg: #262626;
+            --brand: #b91c1c; --border: #330505; --input-bg: #220505;
+            --own-msg: #7f1d1d; --other-msg: #1a1a1a;
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; outline: none; transition: background-color 0.3s, border-color 0.3s; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Plus Jakarta Sans', sans-serif; outline: none; transition: background-color 0.3s, border-color 0.3s; }
         body { background-color: var(--bg); color: var(--text); display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
 
-        /* --- GLOBAL NAV --- */
-        #global-nav {
-            height: 40px; background: #000; display: flex; align-items: center; 
-            justify-content: space-between; padding: 0 15px; flex-shrink: 0;
-            border-bottom: 1px solid #333; position: sticky; top: 0; z-index: 100;
-        }
-        .g-logo { color: #fff; font-weight: 900; text-decoration: none; font-size: 0.8rem; letter-spacing: 1px; display: flex; align-items: center; gap: 5px; }
-        .g-links { display: flex; gap: 15px; }
-        .g-link { color: #666; text-decoration: none; font-size: 0.75rem; font-weight: 700; transition: color 0.2s; }
-        .g-link:hover, .g-link.active { color: #fff; }
-
-        /* HEADER APP */
+        /* HEADER APP (Sub-navegación interna) */
         header { 
             height: 60px; background: var(--card); border-bottom: 1px solid var(--border); 
-            display: flex; justify-content: space-between; align-items: center; padding: 0 15px; flex-shrink: 0; z-index: 50;
+            display: flex; justify-content: space-between; align-items: center; padding: 0 20px; flex-shrink: 0; z-index: 40;
         }
         .header-left { display: flex; align-items: center; gap: 10px; }
-        .app-logo { font-size: 1.1rem; font-weight: 800; color: var(--brand); display: flex; gap: 5px; align-items: center; text-transform: uppercase; letter-spacing: 0.5px; }
-        .header-actions button { background: none; border: 1px solid var(--border); border-radius: 8px; color: var(--text-mute); font-size: 1.1rem; cursor: pointer; padding: 6px; margin-left: 5px; transition: all 0.2s; }
-        .header-actions button:hover { background: var(--bg); color: var(--text); }
+        .app-logo { font-size: 1rem; font-weight: 800; color: var(--text); display: flex; gap: 8px; align-items: center; text-transform: uppercase; letter-spacing: 0.5px; }
+        .header-actions button { background: none; border: 1px solid var(--border); border-radius: 8px; color: var(--text-mute); font-size: 1.1rem; cursor: pointer; padding: 8px; margin-left: 8px; transition: all 0.2s; }
+        .header-actions button:hover { background: var(--bg); color: var(--text); border-color: var(--brand); }
 
         /* TABS (3 Canales) */
         .sections-bar {
             background: var(--bg); border-bottom: 1px solid var(--border);
             display: grid; grid-template-columns: 1fr 1fr 1fr; 
-            padding: 5px; gap: 5px; flex-shrink: 0;
+            padding: 8px; gap: 8px; flex-shrink: 0;
         }
         .section-tab {
-            background: transparent; border: none; border-radius: 8px;
-            color: var(--text-mute); padding: 10px; font-size: 0.75rem; font-weight: 800;
-            cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px;
+            background: transparent; border: 1px solid transparent; border-radius: 12px;
+            color: var(--text-mute); padding: 12px; font-size: 0.75rem; font-weight: 800;
+            cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px;
             transition: all 0.2s; text-transform: uppercase; letter-spacing: 0.5px;
         }
-        .section-tab i { font-size: 1.2rem; }
+        .section-tab i { font-size: 1.3rem; }
         .section-tab:hover { background: var(--card); }
-        .section-tab.active { background: var(--card); color: var(--brand); box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .section-tab.active { background: var(--card); border-color: var(--border); color: var(--brand); }
         .section-tab[data-tab="paquetes"].active { color: var(--pkg-color); }
 
         /* CHAT AREA */
         #messages {
-            flex-grow: 1; overflow-y: auto; padding: 20px 15px; 
-            display: flex; flex-direction: column; gap: 12px;
+            flex-grow: 1; overflow-y: auto; padding: 20px; 
+            display: flex; flex-direction: column; gap: 16px;
             scroll-behavior: smooth;
+            background-image: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.02) 0%, transparent 100%);
         }
 
-        .message-row { display: flex; flex-direction: column; max-width: 85%; }
+        .message-row { display: flex; flex-direction: column; max-width: 85%; animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
         .message-row.mine { align-self: flex-end; align-items: flex-end; }
         .message-row.theirs { align-self: flex-start; align-items: flex-start; }
         
-        .sender-name { font-size: 0.7rem; color: var(--text-mute); margin-bottom: 4px; margin-left: 5px; font-weight: 700; }
+        .sender-name { font-size: 0.65rem; color: var(--text-mute); margin-bottom: 4px; margin-left: 5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
         .message-row.mine .sender-name { display: none; } 
 
         .bubble {
-            padding: 10px 15px; border-radius: 18px; font-size: 0.95rem; line-height: 1.45;
-            position: relative; word-wrap: break-word; box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+            padding: 12px 18px; border-radius: 20px; font-size: 0.95rem; line-height: 1.5; font-weight: 500;
+            position: relative; word-wrap: break-word; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        .message-row.theirs .bubble { background: var(--other-msg); color: var(--text); border-top-left-radius: 4px; }
+        .message-row.theirs .bubble { background: var(--other-msg); color: var(--text); border-top-left-radius: 4px; border: 1px solid var(--border); }
         .message-row.mine .bubble { background: var(--own-msg); color: white; border-top-right-radius: 4px; }
         
-        .msg-meta { font-size: 0.65rem; margin-top: 4px; opacity: 0.7; text-align: right; }
+        .msg-meta { font-size: 0.65rem; margin-top: 4px; opacity: 0.6; text-align: right; font-weight: 700; }
 
         /* ESTILO ESPECIAL: PAQUETES */
         .bubble.package-request {
-            background: rgba(245, 158, 11, 0.15) !important; 
+            background: rgba(245, 158, 11, 0.1) !important; 
             border: 1px solid var(--pkg-color); color: var(--text);
-            border-radius: 12px !important; width: 100%;
+            border-radius: 16px !important; width: 100%;
         }
-        .pkg-header { display: flex; align-items: center; gap: 5px; color: var(--pkg-color); font-weight: 800; font-size: 0.8rem; margin-bottom: 5px; text-transform: uppercase; }
-        .pkg-body { font-size: 1rem; font-weight: 600; margin-bottom: 5px; }
-        .pkg-date { font-size: 0.8rem; color: var(--text-mute); }
+        .pkg-header { display: flex; align-items: center; gap: 6px; color: var(--pkg-color); font-weight: 800; font-size: 0.8rem; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
+        .pkg-body { font-size: 1rem; font-weight: 600; margin-bottom: 8px; }
+        .pkg-date { font-size: 0.8rem; color: var(--text-mute); display: flex; align-items: center; gap: 5px; }
 
         /* FOOTER */
         footer {
-            background: var(--card); padding: 10px 15px; border-top: 1px solid var(--border);
-            display: flex; align-items: center; gap: 10px; flex-shrink: 0;
-            padding-bottom: max(10px, env(safe-area-inset-bottom)); 
+            background: var(--card); padding: 15px; border-top: 1px solid var(--border);
+            display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+            padding-bottom: max(15px, env(safe-area-inset-bottom)); 
         }
         .chat-input-wrapper { flex-grow: 1; position: relative; display: flex; align-items: center; }
         #messageInput {
             width: 100%; background: var(--input-bg); border: 1px solid var(--border);
-            color: var(--text); padding: 12px 18px; border-radius: 24px; font-size: 1rem; 
+            color: var(--text); padding: 14px 20px; border-radius: 99px; font-size: 0.95rem; 
+            transition: all 0.2s;
         }
-        #messageInput:focus { border-color: var(--brand); }
+        #messageInput:focus { border-color: var(--brand); box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2); }
         
         #sendButton, #pkgButton {
-            width: 45px; height: 45px; border-radius: 50%; border: none; font-size: 1.2rem; cursor: pointer;
+            width: 48px; height: 48px; border-radius: 50%; border: none; font-size: 1.2rem; cursor: pointer;
             display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: transform 0.1s;
         }
-        #sendButton { background: var(--brand); color: white; }
-        #pkgButton { background: var(--pkg-color); color: white; display: none; }
+        #sendButton { background: var(--brand); color: white; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); }
+        #pkgButton { background: var(--pkg-color); color: white; display: none; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.3); }
         
         #sendButton:active, #pkgButton:active { transform: scale(0.95); }
-        #sendButton:disabled { background: var(--border); opacity: 0.5; cursor: not-allowed; }
+        #sendButton:disabled { background: var(--border); opacity: 0.5; cursor: not-allowed; box-shadow: none; }
 
         /* MODALS */
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); backdrop-filter: blur(5px); z-index: 2000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); backdrop-filter: blur(8px); z-index: 2000; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity 0.3s; }
         .modal.active { opacity: 1; pointer-events: auto; }
-        .modal-card { background: var(--card); border: 1px solid var(--border); padding: 25px; border-radius: 16px; width: 90%; max-width: 380px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.5); }
+        .modal-card { background: var(--card); border: 1px solid var(--border); padding: 30px; border-radius: 24px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.5); }
         
-        .full-input { width: 100%; padding: 14px; margin-bottom: 12px; background: var(--input-bg); border: 1px solid var(--border); color: var(--text); border-radius: 8px; font-size: 1rem; }
-        .full-btn { width: 100%; padding: 14px; background: var(--brand); color: white; border: none; border-radius: 8px; font-weight: 700; cursor: pointer; margin-bottom: 10px; font-size: 1rem; text-transform: uppercase; }
-        .sec-btn { background: transparent; border: 1px solid var(--border); color: var(--text-mute); font-size: 0.9rem; width: 100%; padding: 12px; border-radius: 8px; cursor: pointer; }
+        .full-input { width: 100%; padding: 16px; margin-bottom: 15px; background: var(--input-bg); border: 1px solid var(--border); color: var(--text); border-radius: 12px; font-size: 1rem; }
+        .full-btn { width: 100%; padding: 16px; background: var(--brand); color: white; border: none; border-radius: 12px; font-weight: 800; cursor: pointer; margin-bottom: 12px; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 1px; transition: transform 0.1s; }
+        .full-btn:active { transform: scale(0.98); }
+        .full-btn:disabled { opacity: 0.6; cursor: wait; }
+        .sec-btn { background: transparent; border: 1px solid var(--border); color: var(--text-mute); font-size: 0.8rem; width: 100%; padding: 14px; border-radius: 12px; cursor: pointer; font-weight: 700; }
         .google-btn { background: #4285F4; }
 
         /* THEME MENU */
         .theme-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-        .theme-btn { padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg); color: var(--text); cursor: pointer; font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .theme-btn { padding: 15px; border-radius: 12px; border: 1px solid var(--border); background: var(--bg); color: var(--text); cursor: pointer; font-size: 0.8rem; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .theme-btn.active { border-color: var(--brand); color: var(--brand); background: var(--card); box-shadow: 0 0 0 1px var(--brand); }
     </style>
 </head>
 <body>
 
-    <!-- GLOBAL NAV -->
-    <nav id="global-nav">
-        <a href="https://godsplan.site" class="g-logo"><i class="ph-bold ph-circles-three-plus"></i> God's Plan</a>
-        <div class="g-links">
-            <a href="https://adherencia.godsplan.site" class="g-link">ADHERENCIA</a>
-            <a href="#" class="g-link active">CHAT</a>
-            <a href="https://godsplan.site/proyectos" class="g-link">PROYECTOS</a>
+    <!-- NAV SUPERIOR (Global Ecosistema) -->
+    <nav id="global-nav" class="h-14 bg-black border-b border-white/5 flex items-center justify-between px-5 shrink-0 z-50">
+        <a href="https://godsplan.site" class="flex items-center gap-2 font-black tracking-wider text-white group decoration-0">
+            <i class="ph-bold ph-circles-three-plus text-lg text-white group-hover:text-red-500 transition-colors"></i> God's Plan
+        </a>
+        <div class="flex gap-4 items-center">
+            <a href="https://adherencia.godsplan.site" class="text-[10px] font-bold text-zinc-500 hover:text-white transition-colors tracking-wider no-underline">ADHERENCIA</a>
+            <a href="https://auth.godsplan.site" class="text-[10px] font-bold text-zinc-500 hover:text-white transition-colors tracking-wider no-underline">AUTH</a>
+            <a href="#" class="text-[10px] font-bold text-white border-b border-white pb-0.5 tracking-wider no-underline">CHAT</a>
+            <a href="https://finanzas.godsplan.site" class="text-[10px] font-bold text-zinc-500 hover:text-white transition-colors tracking-wider no-underline">FINANZAS</a>
+            
+            <!-- Indicador de estado -->
+            <div id="syncStatus" class="w-1.5 h-1.5 rounded-full bg-emerald-500 ml-1 shadow-[0_0_8px_rgba(16,185,129,0.5)]" title="Online"></div>
         </div>
     </nav>
 
     <header>
         <div class="header-left">
-            <div class="app-logo"><i class="ph-fill ph-buildings"></i> Corpodatos</div>
+            <div class="app-logo"><i class="ph-fill ph-buildings text-brand-500"></i> Corpodatos</div>
         </div>
         <div class="header-actions">
             <button onclick="app.openThemeModal()"><i class="ph-bold ph-paint-brush"></i></button>
@@ -196,32 +214,39 @@
     <!-- MODALES -->
     <div class="modal active" id="authModal">
         <div class="modal-card">
-            <h2 style="color:var(--brand); margin-bottom:10px;">Acceso Corpodatos</h2>
+            <div class="mb-6 flex justify-center text-red-500 text-4xl"><i class="ph-fill ph-lock-key"></i></div>
+            <h2 class="text-xl font-bold text-white mb-2">Acceso Corpodatos</h2>
+            <p class="text-xs text-gray-500 mb-6">Introduce tus credenciales empresariales.</p>
+            
             <input type="password" id="companyPin" class="full-input" placeholder="🔒 PIN Empresa">
             <div id="loginForm">
                 <input type="number" id="loginId" class="full-input" placeholder="ID de Empleado">
                 <input type="password" id="loginPass" class="full-input" placeholder="Contraseña">
-                <button class="full-btn" onclick="app.login()">Entrar</button>
-                <button class="full-btn google-btn" onclick="app.loginGoogle()">Google</button>
-                <button class="sec-btn" onclick="app.toggleAuthMode()">Crear Cuenta</button>
+                <button class="full-btn" id="btnLoginAction" onclick="app.login()">Entrar</button>
+                <button class="full-btn google-btn" id="btnGoogleAction" onclick="app.loginGoogle()"><i class="ph-bold ph-google-logo mr-2"></i> Google</button>
+                <button class="sec-btn" onclick="app.toggleAuthMode()">Crear Cuenta Nueva</button>
             </div>
             <div id="registerForm" style="display:none;">
-                <input type="text" id="regName" class="full-input" placeholder="Nombre">
-                <input type="number" id="regId" class="full-input" placeholder="ID">
-                <input type="password" id="regPass" class="full-input" placeholder="Contraseña">
-                <button class="full-btn" onclick="app.register()">Registrarme</button>
-                <button class="sec-btn" onclick="app.toggleAuthMode()">Volver</button>
+                <input type="text" id="regName" class="full-input" placeholder="Nombre Completo">
+                <input type="number" id="regId" class="full-input" placeholder="ID de Empleado">
+                <input type="password" id="regPass" class="full-input" placeholder="Crear Contraseña">
+                <button class="full-btn" id="btnRegAction" onclick="app.register()">Registrarme</button>
+                <button class="sec-btn" onclick="app.toggleAuthMode()">Volver al Login</button>
             </div>
         </div>
     </div>
 
     <div class="modal" id="pkgModal">
         <div class="modal-card">
-            <h3 style="color:var(--pkg-color); margin-bottom:10px;">Solicitar Apoyo</h3>
-            <label class="form-label" style="display:block; text-align:left; color:var(--text-mute); font-size:0.8rem; margin-bottom:5px;">Fecha de Ausencia</label>
+            <h3 style="color:var(--pkg-color); margin-bottom:5px; font-weight:800; font-size:1.2rem;">SOLICITAR APOYO</h3>
+            <p class="text-xs text-gray-500 mb-6">Paquetería o asistencia de personal.</p>
+            
+            <label class="form-label" style="display:block; text-align:left; color:var(--text-mute); font-size:0.75rem; font-weight:700; margin-bottom:8px; text-transform:uppercase;">Fecha Requerida</label>
             <input type="date" id="pkgDate" class="full-input">
-            <label class="form-label" style="display:block; text-align:left; color:var(--text-mute); font-size:0.8rem; margin-bottom:5px;">Motivo</label>
-            <input type="text" id="pkgReason" class="full-input" placeholder="Ej. Corte, Baja">
+            
+            <label class="form-label" style="display:block; text-align:left; color:var(--text-mute); font-size:0.75rem; font-weight:700; margin-bottom:8px; text-transform:uppercase;">Motivo / Detalles</label>
+            <input type="text" id="pkgReason" class="full-input" placeholder="Ej. Material pesado, Baja...">
+            
             <button class="full-btn" style="background:var(--pkg-color);" onclick="app.sendPkgRequest()">Enviar Solicitud</button>
             <button class="sec-btn" onclick="document.getElementById('pkgModal').classList.remove('active')">Cancelar</button>
         </div>
@@ -229,7 +254,7 @@
 
     <div class="modal" id="themeModal">
         <div class="modal-card">
-            <h3 style="margin-bottom:15px; color:var(--text);">Personalizar</h3>
+            <h3 style="margin-bottom:20px; color:var(--text); font-weight:800;">PERSONALIZAR</h3>
             <div class="theme-grid">
                 <button class="theme-btn" onclick="app.setTheme('light')"><i class="ph-bold ph-sun"></i> Claro</button>
                 <button class="theme-btn" onclick="app.setTheme('dark')"><i class="ph-bold ph-moon"></i> Oscuro</button>
@@ -239,11 +264,11 @@
         </div>
     </div>
 
-    <!-- MODAL DE MENSAJES (Sustituye alert nativo) -->
+    <!-- MODAL DE MENSAJES -->
     <div class="modal" id="msgModal">
         <div class="modal-card">
-            <i id="msgIcon" style="font-size:2.5rem; margin-bottom:10px;" class="ph-fill ph-warning-circle text-alert"></i>
-            <p id="msgText" style="font-weight:700; margin-bottom:20px; color:var(--text);"></p>
+            <i id="msgIcon" style="font-size:3rem; margin-bottom:15px;" class="ph-fill ph-warning-circle text-alert"></i>
+            <p id="msgText" style="font-weight:700; margin-bottom:25px; color:var(--text); font-size:1.1rem;"></p>
             <button class="full-btn" onclick="app.closeMessageModal()">ENTENDIDO</button>
         </div>
     </div>
@@ -267,23 +292,35 @@
         }
 
         try { 
-            firebase.initializeApp(firebaseConfig); 
+            if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
             auth = firebase.auth(); 
             db = firebase.firestore(); 
+            // MEJORA 1: Asegurar persistencia local para que no venza rápido
+            auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
+                .catch(e => console.error("Persistence Error:", e));
         } catch(e) { console.error(e); setTimeout(()=>showGlobalError("Error Firebase: "+e.message),1000); }
 
         const app = {
-            user: null, currentChannel: 'blints',
+            user: null, currentChannel: 'blints', isLoading: false,
             
             init() {
                 // Load Theme
-                const savedTheme = localStorage.getItem('gp_theme') || 'dark';
+                const savedTheme = localStorage.getItem('gp_theme') || 'dark'; // Default to dark/godsplan theme
                 this.setTheme(savedTheme);
 
                 auth.onAuthStateChanged(u => {
                     if(u && !u.isAnonymous) { 
                         this.user=u; 
-                        if(sessionStorage.getItem('pin_ok')) this.startChat(); 
+                        // MEJORA 2: Usar localStorage en lugar de sessionStorage para que el PIN no expire al cerrar
+                        if(localStorage.getItem('gp_pin_verified') === 'true') {
+                            this.startChat(); 
+                        } else {
+                            // Si el usuario existe pero no hay PIN verificado (raro pero posible), pedimos login/pin de nuevo
+                            document.getElementById('authModal').classList.add('active');
+                        }
+                    } else {
+                        // Ensure modal is active if not logged in
+                         document.getElementById('authModal').classList.add('active');
                     }
                 });
 
@@ -300,11 +337,35 @@
                 const text = document.getElementById('msgText');
                 const icon = document.getElementById('msgIcon');
                 text.textContent = m;
-                icon.style.color = 'var(--brand)'; // Usa color de marca para errores
+                icon.style.color = 'var(--brand)'; 
                 modal.classList.add('active');
             },
             closeMessageModal() {
                 document.getElementById('msgModal').classList.remove('active');
+            },
+            // MEJORA 3: Manejo de errores amigable en español
+            handleAuthError(error) {
+                this.setLoading(false);
+                let msg = "Error desconocido.";
+                if(error.code === 'auth/wrong-password') msg = "Contraseña incorrecta.";
+                else if(error.code === 'auth/user-not-found') msg = "Usuario no encontrado.";
+                else if(error.code === 'auth/email-already-in-use') msg = "Este ID ya está registrado.";
+                else if(error.code === 'auth/invalid-email') msg = "Formato de ID inválido.";
+                else if(error.code === 'auth/weak-password') msg = "La contraseña es muy débil.";
+                else msg = error.message;
+                this.showMessage(msg);
+            },
+            setLoading(loading) {
+                this.isLoading = loading;
+                const btns = ['btnLoginAction', 'btnGoogleAction', 'btnRegAction'];
+                btns.forEach(id => {
+                    const btn = document.getElementById(id);
+                    if(btn) {
+                        btn.disabled = loading;
+                        btn.textContent = loading ? "Procesando..." : (id === 'btnLoginAction' ? "Entrar" : (id === 'btnRegAction' ? "Registrarme" : "Google"));
+                        if(id === 'btnGoogleAction' && !loading) btn.innerHTML = '<i class="ph-bold ph-google-logo mr-2"></i> Google';
+                    }
+                });
             },
 
             // THEME
@@ -313,46 +374,86 @@
                 document.documentElement.setAttribute('data-theme', t);
                 localStorage.setItem('gp_theme', t);
                 document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+                
+                if(t==='light') document.querySelector('.theme-btn:nth-child(1)').classList.add('active');
+                if(t==='dark') document.querySelector('.theme-btn:nth-child(2)').classList.add('active');
+                if(t==='red') document.querySelector('.theme-btn:nth-child(3)').classList.add('active');
             },
 
             // AUTH
             checkPin() { 
-                if(document.getElementById('companyPin').value.toLowerCase() !== PIN) { 
-                    this.showMessage("🚫 PIN Incorrecto."); 
+                const pinVal = document.getElementById('companyPin').value.trim().toLowerCase();
+                if(pinVal !== PIN) { 
+                    this.showMessage("🚫 PIN de Empresa Incorrecto."); 
                     return false; 
                 } 
-                sessionStorage.setItem('pin_ok','true'); 
+                // MEJORA 2: Guardar en localStorage
+                localStorage.setItem('gp_pin_verified','true'); 
                 return true; 
             },
+            
             async login() { 
+                if(this.isLoading) return;
                 if(!this.checkPin()) return; 
-                const id = document.getElementById('loginId').value;
-                const pass = document.getElementById('loginPass').value;
+                
+                const id = document.getElementById('loginId').value.trim();
+                const pass = document.getElementById('loginPass').value.trim();
+                
+                if(!id || !pass) return this.showMessage("Completa todos los campos.");
+
+                this.setLoading(true);
                 try{ 
                     await auth.signInWithEmailAndPassword(id+"@godsplan.local", pass); 
-                } catch(e) { this.showMessage("Error: " + e.message); } 
+                    // onAuthStateChanged se encargará de cerrar el modal
+                } catch(e) { this.handleAuthError(e); } 
             },
+            
             async loginGoogle() { 
+                if(this.isLoading) return;
                 if(!this.checkPin()) return; 
+                
+                this.setLoading(true);
                 try{ 
                     await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); 
-                } catch(e) { this.showMessage("Error: " + e.message); } 
+                } catch(e) { this.handleAuthError(e); } 
             },
+            
             async register() { 
+                if(this.isLoading) return;
                 if(!this.checkPin()) return; 
+                
+                const name = document.getElementById('regName').value.trim();
+                const id = document.getElementById('regId').value.trim();
+                const pass = document.getElementById('regPass').value.trim();
+
+                if(!name || !id || !pass) return this.showMessage("Completa todos los campos.");
+
+                this.setLoading(true);
                 try{ 
-                    const r = await auth.createUserWithEmailAndPassword(document.getElementById('regId').value+"@godsplan.local", document.getElementById('regPass').value); 
-                    await r.user.updateProfile({displayName:document.getElementById('regName').value}); 
-                } catch(e) { this.showMessage(e.message); } 
+                    const r = await auth.createUserWithEmailAndPassword(id+"@godsplan.local", pass); 
+                    await r.user.updateProfile({displayName: name}); 
+                } catch(e) { this.handleAuthError(e); } 
             },
+            
             toggleAuthMode() { 
                 const l=document.getElementById('loginForm'), r=document.getElementById('registerForm'); 
                 l.style.display=l.style.display==='none'?'block':'none'; 
                 r.style.display=r.style.display==='none'?'block':'none'; 
             },
-            logout() { auth.signOut(); sessionStorage.removeItem('pin_ok'); location.reload(); },
+            
+            logout() { 
+                if(confirm("¿Cerrar sesión de Corpodatos?")) {
+                    auth.signOut(); 
+                    localStorage.removeItem('gp_pin_verified'); 
+                    location.reload(); 
+                }
+            },
 
-            startChat() { document.getElementById('authModal').classList.remove('active'); this.loadMessages(); },
+            startChat() { 
+                document.getElementById('authModal').classList.remove('active'); 
+                this.setLoading(false);
+                this.loadMessages(); 
+            },
 
             // CHAT LOGIC
             switchChannel(c) {
@@ -375,7 +476,7 @@
             loadMessages() {
                 if(this.unsub) this.unsub();
                 const box = document.getElementById('messages');
-                box.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-mute)">Cargando...</div>';
+                box.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-mute); font-size:0.8rem; text-transform:uppercase; letter-spacing:1px; font-weight:700;">Cargando mensajes...</div>';
                 
                 this.unsub = db.collection(COLLECTION_NAME)
                     .where('channel', '==', this.currentChannel)
@@ -383,7 +484,7 @@
                     .limit(50)
                     .onSnapshot(s => {
                         box.innerHTML = '';
-                        if(s.empty) box.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-mute)">Nada por aquí.</div>';
+                        if(s.empty) box.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-mute); font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">Canal vacío</div>';
                         
                         s.forEach(d => {
                             const m = d.data();
@@ -399,7 +500,7 @@
                                         <div class="pkg-header"><i class="ph-bold ph-hand-waving"></i> APOYO REQUERIDO</div>
                                         <div class="pkg-body">Por favor, bajen mis paquetes.</div>
                                         <div class="pkg-date"><i class="ph-bold ph-calendar"></i> Fecha: <strong>${m.targetDate}</strong></div>
-                                        ${m.reason ? `<div class="pkg-date" style="margin-top:2px;">Motivo: ${m.reason}</div>` : ''}
+                                        ${m.reason ? `<div class="pkg-date" style="margin-top:4px;"><i class="ph-bold ph-info"></i> Nota: ${m.reason}</div>` : ''}
                                         <div class="msg-meta">${time}</div>
                                     </div>
                                 </div>`;
@@ -425,6 +526,7 @@
                 this.postMessage(txt, 'text');
                 input.value = '';
                 input.focus();
+                document.getElementById('sendButton').disabled = true;
             },
 
             openPkgModal() { document.getElementById('pkgModal').classList.add('active'); },
@@ -455,5 +557,3 @@
     </script>
 </body>
 </html>
-
-
