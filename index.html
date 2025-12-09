@@ -11,10 +11,43 @@
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;500;700;800&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
     
-    <!-- FIREBASE COMPAT -->
-    <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
+    <!-- FIREBASE MODULAR (v9+) -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { 
+            getAuth, 
+            signInAnonymously, 
+            signInWithCustomToken, 
+            onAuthStateChanged, 
+            signOut, 
+            GoogleAuthProvider, 
+            signInWithPopup, 
+            signInWithEmailAndPassword, 
+            createUserWithEmailAndPassword, 
+            updateProfile 
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        
+        import { 
+            getFirestore, 
+            doc, 
+            getDoc, 
+            setDoc, 
+            collection, 
+            addDoc, 
+            query, 
+            where, 
+            orderBy, 
+            limit, 
+            onSnapshot, 
+            serverTimestamp 
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        window.firebaseImports = {
+            initializeApp, getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signOut,
+            GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile,
+            getFirestore, doc, getDoc, setDoc, collection, addDoc, query, where, orderBy, limit, onSnapshot, serverTimestamp
+        };
+    </script>
 
     <script>
         tailwind.config = {
@@ -173,8 +206,6 @@
             <a href="https://auth.godsplan.site" class="text-[10px] font-bold text-zinc-500 hover:text-white transition-colors tracking-wider no-underline">AUTH</a>
             <a href="#" class="text-[10px] font-bold text-white border-b border-white pb-0.5 tracking-wider no-underline">CHAT</a>
             <a href="https://finanzas.godsplan.site" class="text-[10px] font-bold text-zinc-500 hover:text-white transition-colors tracking-wider no-underline">FINANZAS</a>
-            
-            <!-- Indicador de estado -->
             <div id="syncStatus" class="w-1.5 h-1.5 rounded-full bg-emerald-500 ml-1 shadow-[0_0_8px_rgba(16,185,129,0.5)]" title="Online"></div>
         </div>
     </nav>
@@ -184,19 +215,19 @@
             <div class="app-logo"><i class="ph-fill ph-buildings text-brand-500"></i> Corpodatos</div>
         </div>
         <div class="header-actions">
-            <button onclick="app.openThemeModal()"><i class="ph-bold ph-paint-brush"></i></button>
-            <button onclick="app.logout()" title="Cerrar"><i class="ph-bold ph-sign-out"></i></button>
+            <button onclick="window.app.openThemeModal()"><i class="ph-bold ph-paint-brush"></i></button>
+            <button onclick="window.app.logout()" title="Cerrar"><i class="ph-bold ph-sign-out"></i></button>
         </div>
     </header>
 
     <div class="sections-bar">
-        <button class="section-tab active" onclick="app.switchChannel('blints')">
+        <button class="section-tab active" onclick="window.app.switchChannel('blints')">
             <i class="ph-bold ph-lightning"></i> Blints
         </button>
-        <button class="section-tab" onclick="app.switchChannel('chat')">
+        <button class="section-tab" onclick="window.app.switchChannel('chat')">
             <i class="ph-bold ph-chat-circle-text"></i> Chat
         </button>
-        <button class="section-tab" data-tab="paquetes" onclick="app.switchChannel('paquetes')">
+        <button class="section-tab" data-tab="paquetes" onclick="window.app.switchChannel('paquetes')">
             <i class="ph-bold ph-package"></i> Paquetes
         </button>
     </div>
@@ -208,7 +239,7 @@
             <input type="text" id="messageInput" placeholder="Escribe un mensaje..." autocomplete="off">
         </div>
         <button id="sendButton" disabled><i class="ph-fill ph-paper-plane-right"></i></button>
-        <button id="pkgButton" onclick="app.openPkgModal()"><i class="ph-bold ph-hand-waving"></i></button>
+        <button id="pkgButton" onclick="window.app.openPkgModal()"><i class="ph-bold ph-hand-waving"></i></button>
     </footer>
 
     <!-- MODALES -->
@@ -220,18 +251,18 @@
             
             <input type="password" id="companyPin" class="full-input" placeholder="🔒 PIN Empresa">
             <div id="loginForm">
-                <input type="number" id="loginId" class="full-input" placeholder="ID de Empleado">
+                <input type="text" id="loginId" class="full-input" placeholder="ID de Empleado o Correo">
                 <input type="password" id="loginPass" class="full-input" placeholder="Contraseña">
-                <button class="full-btn" id="btnLoginAction" onclick="app.login()">Entrar</button>
-                <button class="full-btn google-btn" id="btnGoogleAction" onclick="app.loginGoogle()"><i class="ph-bold ph-google-logo mr-2"></i> Google</button>
-                <button class="sec-btn" onclick="app.toggleAuthMode()">Crear Cuenta Nueva</button>
+                <button class="full-btn" id="btnLoginAction" onclick="window.app.login()">Entrar</button>
+                <button class="full-btn google-btn" id="btnGoogleAction" onclick="window.app.loginGoogle()"><i class="ph-bold ph-google-logo mr-2"></i> Google</button>
+                <button class="sec-btn" onclick="window.app.toggleAuthMode()">Crear Cuenta Nueva</button>
             </div>
             <div id="registerForm" style="display:none;">
                 <input type="text" id="regName" class="full-input" placeholder="Nombre Completo">
-                <input type="number" id="regId" class="full-input" placeholder="ID de Empleado">
+                <input type="text" id="regId" class="full-input" placeholder="ID de Empleado o Correo">
                 <input type="password" id="regPass" class="full-input" placeholder="Crear Contraseña">
-                <button class="full-btn" id="btnRegAction" onclick="app.register()">Registrarme</button>
-                <button class="sec-btn" onclick="app.toggleAuthMode()">Volver al Login</button>
+                <button class="full-btn" id="btnRegAction" onclick="window.app.register()">Registrarme</button>
+                <button class="sec-btn" onclick="window.app.toggleAuthMode()">Volver al Login</button>
             </div>
         </div>
     </div>
@@ -247,7 +278,7 @@
             <label class="form-label" style="display:block; text-align:left; color:var(--text-mute); font-size:0.75rem; font-weight:700; margin-bottom:8px; text-transform:uppercase;">Motivo / Detalles</label>
             <input type="text" id="pkgReason" class="full-input" placeholder="Ej. Material pesado, Baja...">
             
-            <button class="full-btn" style="background:var(--pkg-color);" onclick="app.sendPkgRequest()">Enviar Solicitud</button>
+            <button class="full-btn" style="background:var(--pkg-color);" onclick="window.app.sendPkgRequest()">Enviar Solicitud</button>
             <button class="sec-btn" onclick="document.getElementById('pkgModal').classList.remove('active')">Cancelar</button>
         </div>
     </div>
@@ -256,9 +287,9 @@
         <div class="modal-card">
             <h3 style="margin-bottom:20px; color:var(--text); font-weight:800;">PERSONALIZAR</h3>
             <div class="theme-grid">
-                <button class="theme-btn" onclick="app.setTheme('light')"><i class="ph-bold ph-sun"></i> Claro</button>
-                <button class="theme-btn" onclick="app.setTheme('dark')"><i class="ph-bold ph-moon"></i> Oscuro</button>
-                <button class="theme-btn" onclick="app.setTheme('red')"><i class="ph-bold ph-fire"></i> Red Core</button>
+                <button class="theme-btn" onclick="window.app.setTheme('light')"><i class="ph-bold ph-sun"></i> Claro</button>
+                <button class="theme-btn" onclick="window.app.setTheme('dark')"><i class="ph-bold ph-moon"></i> Oscuro</button>
+                <button class="theme-btn" onclick="window.app.setTheme('red')"><i class="ph-bold ph-fire"></i> Red Core</button>
             </div>
             <button class="sec-btn" onclick="document.getElementById('themeModal').classList.remove('active')">Cerrar</button>
         </div>
@@ -269,19 +300,29 @@
         <div class="modal-card">
             <i id="msgIcon" style="font-size:3rem; margin-bottom:15px;" class="ph-fill ph-warning-circle text-alert"></i>
             <p id="msgText" style="font-weight:700; margin-bottom:25px; color:var(--text); font-size:1.1rem;"></p>
-            <button class="full-btn" onclick="app.closeMessageModal()">ENTENDIDO</button>
+            <button class="full-btn" onclick="window.app.closeMessageModal()">ENTENDIDO</button>
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        const { 
+            initializeApp, getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signOut, 
+            GoogleAuthProvider, signInWithPopup, signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile,
+            getFirestore, doc, getDoc, setDoc, collection, addDoc, query, where, orderBy, limit, onSnapshot, serverTimestamp 
+        } = window.firebaseImports;
+
         const PIN = "corpodatos"; 
         const COLLECTION_NAME = "chat_corpo"; 
         
-        const firebaseConfig = { apiKey: "AIzaSyCrHBz94UtgiaYntHCYhC5jNa6auUI63vQ", authDomain: "god-s-plan-d737b.firebaseapp.com", projectId: "god-s-plan-d737b", storageBucket: "god-s-plan-d737b.firebasestorage.app", messagingSenderId: "458198314028", appId: "1:458198314028:web:d62b24cee2d19ee5b47589" };
-        
+        // --- CONFIGURACIÓN ROBUSTA (Igual que en Finanzas/Cuenta) ---
+        const fallbackConfig = { apiKey: "AIzaSyCrHBz94UtgiaYntHCYhC5jNa6auUI63vQ", authDomain: "god-s-plan-d737b.firebaseapp.com", projectId: "god-s-plan-d737b", storageBucket: "god-s-plan-d737b.firebasestorage.app", messagingSenderId: "458198314028", appId: "1:458198314028:web:d62b24cee2d19ee5b47589" };
+        let firebaseConfig = fallbackConfig;
+        try { if (typeof __firebase_config !== 'undefined' && __firebase_config) { const envConfig = typeof __firebase_config === 'string' ? JSON.parse(__firebase_config) : __firebase_config; if (envConfig && envConfig.apiKey) firebaseConfig = envConfig; } } catch(e) { console.error(e); }
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        // -----------------------------------------------------------
+
         let auth, db, unsubscribe = null;
 
-        // Custom Error Handler
         function showGlobalError(m){ 
             const x=document.getElementById('msgModal'); 
             if(x){ 
@@ -292,35 +333,35 @@
         }
 
         try { 
-            if(!firebase.apps.length) firebase.initializeApp(firebaseConfig);
-            auth = firebase.auth(); 
-            db = firebase.firestore(); 
-            // MEJORA 1: Asegurar persistencia local para que no venza rápido
-            auth.setPersistence(firebase.auth.Auth.Persistence.LOCAL)
-                .catch(e => console.error("Persistence Error:", e));
+            const fbApp = initializeApp(firebaseConfig); 
+            auth = getAuth(fbApp); 
+            db = getFirestore(fbApp); 
         } catch(e) { console.error(e); setTimeout(()=>showGlobalError("Error Firebase: "+e.message),1000); }
 
-        const app = {
-            user: null, currentChannel: 'blints', isLoading: false,
+        window.app = {
+            user: null, currentChannel: 'blints', isLoading: false, unsub: null,
             
             init() {
                 // Load Theme
                 const savedTheme = localStorage.getItem('gp_theme') || 'dark'; // Default to dark/godsplan theme
                 this.setTheme(savedTheme);
 
-                auth.onAuthStateChanged(u => {
-                    if(u && !u.isAnonymous) { 
-                        this.user=u; 
-                        // MEJORA 2: Usar localStorage en lugar de sessionStorage para que el PIN no expire al cerrar
+                onAuthStateChanged(auth, async u => {
+                    if (u) { 
+                        this.user = u; 
+                        // Verificamos si ya validó el PIN en esta sesión o en localStorage
                         if(localStorage.getItem('gp_pin_verified') === 'true') {
                             this.startChat(); 
                         } else {
-                            // Si el usuario existe pero no hay PIN verificado (raro pero posible), pedimos login/pin de nuevo
                             document.getElementById('authModal').classList.add('active');
                         }
                     } else {
-                        // Ensure modal is active if not logged in
-                         document.getElementById('authModal').classList.add('active');
+                        // Si hay token inicial (sesión heredada de Canvas), intentamos usarlo
+                        if (initialAuthToken) {
+                            try { await signInWithCustomToken(auth, initialAuthToken); return; } catch(e){}
+                        }
+                        // Si no hay usuario ni token, mostrar modal de login
+                        document.getElementById('authModal').classList.add('active');
                     }
                 });
 
@@ -343,7 +384,6 @@
             closeMessageModal() {
                 document.getElementById('msgModal').classList.remove('active');
             },
-            // MEJORA 3: Manejo de errores amigable en español
             handleAuthError(error) {
                 this.setLoading(false);
                 let msg = "Error desconocido.";
@@ -383,11 +423,13 @@
             // AUTH
             checkPin() { 
                 const pinVal = document.getElementById('companyPin').value.trim().toLowerCase();
+                // Si el PIN ya fue verificado antes, lo saltamos, si no, lo pedimos
+                if (localStorage.getItem('gp_pin_verified') === 'true') return true;
+
                 if(pinVal !== PIN) { 
                     this.showMessage("🚫 PIN de Empresa Incorrecto."); 
                     return false; 
                 } 
-                // MEJORA 2: Guardar en localStorage
                 localStorage.setItem('gp_pin_verified','true'); 
                 return true; 
             },
@@ -401,10 +443,13 @@
                 
                 if(!id || !pass) return this.showMessage("Completa todos los campos.");
 
+                // Lógica unificada: si no hay @, agregamos el dominio
+                let email = id;
+                if (!email.includes('@')) email = `${id}@godsplan.site`;
+
                 this.setLoading(true);
                 try{ 
-                    await auth.signInWithEmailAndPassword(id+"@godsplan.local", pass); 
-                    // onAuthStateChanged se encargará de cerrar el modal
+                    await signInWithEmailAndPassword(auth, email, pass); 
                 } catch(e) { this.handleAuthError(e); } 
             },
             
@@ -414,7 +459,7 @@
                 
                 this.setLoading(true);
                 try{ 
-                    await auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()); 
+                    await signInWithPopup(auth, new GoogleAuthProvider()); 
                 } catch(e) { this.handleAuthError(e); } 
             },
             
@@ -428,10 +473,13 @@
 
                 if(!name || !id || !pass) return this.showMessage("Completa todos los campos.");
 
+                let email = id;
+                if (!email.includes('@')) email = `${id}@godsplan.site`;
+
                 this.setLoading(true);
                 try{ 
-                    const r = await auth.createUserWithEmailAndPassword(id+"@godsplan.local", pass); 
-                    await r.user.updateProfile({displayName: name}); 
+                    const r = await createUserWithEmailAndPassword(auth, email, pass); 
+                    await updateProfile(r.user, {displayName: name}); 
                 } catch(e) { this.handleAuthError(e); } 
             },
             
@@ -443,7 +491,7 @@
             
             logout() { 
                 if(confirm("¿Cerrar sesión de Corpodatos?")) {
-                    auth.signOut(); 
+                    signOut(auth); 
                     localStorage.removeItem('gp_pin_verified'); 
                     location.reload(); 
                 }
@@ -478,45 +526,52 @@
                 const box = document.getElementById('messages');
                 box.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-mute); font-size:0.8rem; text-transform:uppercase; letter-spacing:1px; font-weight:700;">Cargando mensajes...</div>';
                 
-                this.unsub = db.collection(COLLECTION_NAME)
-                    .where('channel', '==', this.currentChannel)
-                    .orderBy('at', 'asc')
-                    .limit(50)
-                    .onSnapshot(s => {
-                        box.innerHTML = '';
-                        if(s.empty) box.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-mute); font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">Canal vacío</div>';
-                        
-                        s.forEach(d => {
-                            const m = d.data();
-                            const mine = m.uid === this.user.uid;
-                            const time = m.at ? new Date(m.at.toDate()).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '...';
-                            const name = m.name.includes('@') ? "ID "+m.uid.slice(0,4) : m.name;
+                const q = query(
+                    collection(db, COLLECTION_NAME),
+                    where('channel', '==', this.currentChannel),
+                    orderBy('at', 'asc'),
+                    limit(50)
+                );
 
-                            if (m.type === 'package_request') {
-                                box.innerHTML += `
-                                <div class="message-row ${mine?'mine':'theirs'}" style="width:100%;">
-                                    <div class="sender-name">${name}</div>
-                                    <div class="bubble package-request">
-                                        <div class="pkg-header"><i class="ph-bold ph-hand-waving"></i> APOYO REQUERIDO</div>
-                                        <div class="pkg-body">Por favor, bajen mis paquetes.</div>
-                                        <div class="pkg-date"><i class="ph-bold ph-calendar"></i> Fecha: <strong>${m.targetDate}</strong></div>
-                                        ${m.reason ? `<div class="pkg-date" style="margin-top:4px;"><i class="ph-bold ph-info"></i> Nota: ${m.reason}</div>` : ''}
-                                        <div class="msg-meta">${time}</div>
-                                    </div>
-                                </div>`;
-                            } else {
-                                box.innerHTML += `
-                                <div class="message-row ${mine?'mine':'theirs'}">
-                                    <div class="sender-name">${name}</div>
-                                    <div class="bubble">
-                                        ${m.text}
-                                        <div class="msg-meta">${time}</div>
-                                    </div>
-                                </div>`;
-                            }
-                        });
-                        box.scrollTop = box.scrollHeight;
+                this.unsub = onSnapshot(q, (s) => {
+                    box.innerHTML = '';
+                    if(s.empty) box.innerHTML = '<div style="text-align:center; padding:40px; color:var(--text-mute); font-size:0.8rem; text-transform:uppercase; letter-spacing:1px;">Canal vacío</div>';
+                    
+                    s.forEach(d => {
+                        const m = d.data();
+                        const mine = this.user && m.uid === this.user.uid;
+                        const time = m.at ? new Date(m.at.toDate()).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '...';
+                        let name = m.name;
+                        // Ocultar dominio ficticio en el nombre si es un usuario por ID
+                        if (name && name.includes('@godsplan.site')) {
+                            name = "ID " + name.split('@')[0];
+                        }
+
+                        if (m.type === 'package_request') {
+                            box.innerHTML += `
+                            <div class="message-row ${mine?'mine':'theirs'}" style="width:100%;">
+                                <div class="sender-name">${name}</div>
+                                <div class="bubble package-request">
+                                    <div class="pkg-header"><i class="ph-bold ph-hand-waving"></i> APOYO REQUERIDO</div>
+                                    <div class="pkg-body">Por favor, bajen mis paquetes.</div>
+                                    <div class="pkg-date"><i class="ph-bold ph-calendar"></i> Fecha: <strong>${m.targetDate}</strong></div>
+                                    ${m.reason ? `<div class="pkg-date" style="margin-top:4px;"><i class="ph-bold ph-info"></i> Nota: ${m.reason}</div>` : ''}
+                                    <div class="msg-meta">${time}</div>
+                                </div>
+                            </div>`;
+                        } else {
+                            box.innerHTML += `
+                            <div class="message-row ${mine?'mine':'theirs'}">
+                                <div class="sender-name">${name}</div>
+                                <div class="bubble">
+                                    ${m.text}
+                                    <div class="msg-meta">${time}</div>
+                                </div>
+                            </div>`;
+                        }
                     });
+                    box.scrollTop = box.scrollHeight;
+                });
             },
 
             sendMessage() {
@@ -537,23 +592,24 @@
                 if(!dateVal) return this.showMessage("Selecciona una fecha");
                 const dateObj = new Date(dateVal + 'T00:00:00');
                 const dateStr = dateObj.toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' });
-                db.collection(COLLECTION_NAME).add({
+                
+                addDoc(collection(db, COLLECTION_NAME), {
                     type: 'package_request', targetDate: dateStr, reason: reason,
-                    at: firebase.firestore.FieldValue.serverTimestamp(),
-                    uid: this.user.uid, name: this.user.displayName || "Anon", channel: 'paquetes'
+                    at: serverTimestamp(),
+                    uid: this.user.uid, name: this.user.displayName || this.user.email || "Anon", channel: 'paquetes'
                 });
                 document.getElementById('pkgModal').classList.remove('active');
             },
 
             postMessage(content, type) {
-                db.collection(COLLECTION_NAME).add({
+                addDoc(collection(db, COLLECTION_NAME), {
                     text: content, type: type || 'text',
-                    at: firebase.firestore.FieldValue.serverTimestamp(),
-                    uid: this.user.uid, name: this.user.displayName || "Anon", channel: this.currentChannel
+                    at: serverTimestamp(),
+                    uid: this.user.uid, name: this.user.displayName || this.user.email || "Anon", channel: this.currentChannel
                 });
             }
         };
-        document.addEventListener('DOMContentLoaded', ()=>app.init());
+        document.addEventListener('DOMContentLoaded', ()=>window.app.init());
     </script>
 </body>
 </html>
