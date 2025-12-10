@@ -761,8 +761,9 @@
 
                 // Bubble Start
                 const bubbleClass = m.type === 'package_request' ? 'bubble package-request' : 'bubble';
-                content += `<div class="${bubbleClass}" id="bubble-${id}">`;
-                bubble.setAttribute('data-msg-id', id); // Para el listener de doble click
+                const bubble = document.createElement('div'); // Creamos el elemento aquí para el atributo data-msg-id
+                bubble.className = bubbleClass;
+                bubble.id = `bubble-${id}`;
 
                 // Reply Preview
                 if(m.replyTo) {
@@ -794,13 +795,11 @@
                      content += `<div class="reaction-badge">❤️ ${count > 1 ? count : ''}</div>`;
                 }
 
-                content += `</div>`; // End Bubble
-                content += `</div>`; // End Container
+                bubble.innerHTML = content; // Establecemos el contenido HTML del bubble
 
-                div.innerHTML = content;
-
+                div.querySelector('.bubble-container').appendChild(bubble); // Lo añadimos al container
+                
                 // Attach Events
-                const bubble = div.querySelector('.bubble');
                 bubble.addEventListener('click', openMenu);
                 bubble.addEventListener('dblclick', toggleReaction);
 
