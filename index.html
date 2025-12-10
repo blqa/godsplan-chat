@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>God's Plan | Chat</title>
+    <title>God's Plan | Chat Pro Corpodatos</title>
     
     <!-- LIBRERIAS & FUENTES -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -267,7 +267,7 @@
 
     <!-- NAV SUPERIOR (Global Header) -->
     <nav id="global-nav" class="h-14 bg-black border-b border-white/5 flex items-center justify-between px-5 shrink-0 z-50">
-        <a href="godsplan.site.html" class="flex items-center gap-2 font-black tracking-wider text-white group decoration-0">
+        <a href="https://godsplan.site/" class="flex items-center gap-2 font-black tracking-wider text-white group decoration-0">
             <i class="ph-bold ph-circles-three-plus text-lg text-white group-hover:text-red-500 transition-colors"></i> God's Plan
         </a>
         <div class="flex gap-4 items-center">
@@ -612,7 +612,8 @@
                     signOut(auth); 
                     localStorage.removeItem('gp_pin_verified'); 
                     // Redirigir a la página principal para que inicie el ciclo de autenticación
-                    window.location.href = "godsplan.site.html"; 
+                    // Usamos la URL absoluta según tu requerimiento, que es la correcta para producción.
+                    window.location.href = "https://godsplan.site/"; 
                 }
             },
 
